@@ -18,14 +18,14 @@ program
 
 const cli_options = program.opts();
 
-const options = {
+const cdp_options = {
   'host' : cli_options.host,
   'port' : cli_options.port,
 };
 
 var dump_interval;
 
-CDP(options, function(chrome) {
+CDP(cdp_options, function(chrome) {
   with(chrome) {
 
     function dump_memory() {
