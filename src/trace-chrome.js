@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-var Chrome = require('chrome-remote-interface');
+const CDP = require('chrome-remote-interface');
 const {program} = require('commander');
 
 program
@@ -25,7 +25,7 @@ const options = {
 
 var dump_interval;
 
-Chrome(options, function(chrome) {
+CDP(options, function(chrome) {
   with(chrome) {
 
     function dump_memory() {
