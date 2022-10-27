@@ -23,71 +23,106 @@ const cdp_options = {
   'port' : cli_options.port,
 };
 
-var dump_interval;
+function show_categories() {
+  CDP(cdp_options, (client) => {
+    const {Tracing} = client;
+    Tracing.getCategories((message, result) => {
+      result.categories.forEach(category => { console.log(category); });
+      client.close();
+    });
+  }).on('error', (err) => { console.error(err); });
+}
 
-CDP(cdp_options, function(chrome) {
-  with(chrome) {
+function trace_configuration_from_cli_options(opts) {
+  let result = {
+    dump_memory_mode : opts.memory_dump_mode,
+    dump_memory_at_stop : opts.dump_memory_at_stop,
+    dump_memory_interval : opts.memory_dump_interval,
+    trace_params : {traceConfig : {}, streamFormat : "json"}
+  };
 
-    function dump_memory() {
-      Tracing.requestMemoryDump().then(
-          function() { console.error("Memory dump done"); },
-          function() { console.error("Memory dump failed"); });
-    }
-
-    if (cli_options.showcategories) {
-      Tracing.getCategories(function(message, result) {
-        for (i = 0; i < result["categories"].length; i++) {
-          console.log(result["categories"][i]);
-        }
-        close();
-      });
-    } else {
-      a = {"traceEvents" : []};
-      on('Tracing.dataCollected',
-         function(
-             message) { a.traceEvents = a.traceEvents.concat(message.value); });
-      on('Tracing.tracingComplete', function() {
-        console.log(JSON.stringify(a));
-        close();
-      });
-      process.on('SIGINT', function() {
-        if (dump_interval) {
-          clearInterval(dump_interval);
-        }
-        if (cli_options.dump_memory_at_stop) {
-          console.error("Dumping memory at stop");
-          dump_memory();
-        }
-        Tracing.end();
-      });
-      console.error("Connecting to: " + cli_options.host + ":" +
-                    cli_options.port);
-      traceConfig = {};
-      if (cli_options.categories) {
-        console.error("Categories: " + cli_options.categories);
-        traceConfig["includedCategories"] = cli_options.categories.split(",");
-      }
-      if (cli_options.excludecategories) {
-        traceConfig["excludedCategories"] =
-            cli_options.excludecategories.split(",");
-        console.error("Excluded categories: " + cli_options.excludecategories);
-      }
-      if (cli_options.systrace) {
-        traceConfig["enable_systrace"] = true;
-      }
-      if (cli_options.memory_dump_mode) {
-        traceConfig["memory_dump_config"] = {
-          "triggers" : [ {
-            "mode" : cli_options.memory_dump_mode,
-            "periodic_interval_ms" : cli_options.memory_dump_interval
-          } ]
-        }
-
-        dump_interval =
-            setInterval(dump_memory, cli_options.memory_dump_interval);
-      }
-      console.error("Traceconfig is " + JSON.stringify(traceConfig));
-      Tracing.start({"traceConfig" : traceConfig, "streamFormat" : "json"});
-    }
+  if (opts.categories) {
+    console.error("Categories: " + opts.categories);
+    result.trace_params.traceConfig["includedCategories"] =
+        opts.categories.split(",");
   }
-}).on('error', function() { console.error('Cannot connect to Chrome'); });
+  if (opts.excludecategories) {
+    console.error("Excluded categories: " + opts.excludecategories);
+    result.trace_params.traceConfig["excludedCategories"] =
+        opts.excludecategories.split(",");
+  }
+  if (opts.systrace) {
+    console.error("Systrace enabled");
+    result.trace_params.traceConfig["enableSystrace"] = true;
+  }
+  if (opts.memory_dump_mode) {
+    console.error("Memory dump enabled. Mode " + opts.memory_dump_mode +
+                  ". Interval " + opts.memory_dump_interval + "ms");
+    if (!result.trace_params.traceConfig["includedCategories"]) {
+      result.trace_params.traceConfig["includedCategories"] = [ "*" ];
+    }
+    result.trace_params.traceConfig["includedCategories"].push(
+        "disabled-by-default-memory-infra");
+  }
+  return result;
+}
+
+function dump_memory(tracing, trace_config) {
+  const dump_options = {levelOfDetail : trace_config.dump_memory_mode};
+  tracing.requestMemoryDump(dump_options)
+      .then(
+          function(result) {
+            console.error(`Memory dump ${result.success ? "done" : "failed"}`);
+          },
+          function() { console.error("Memory dump failed"); });
+}
+
+function start_memory_dump(tracing, trace_config) {
+  return setInterval(function() { dump_memory(tracing, trace_config); },
+                     trace_config.dump_memory_interval);
+}
+
+async function capture_trace(trace_config) {
+  CDP(cdp_options, (client) => {
+    const {Tracing} = client;
+    const data = {"traceEvents" : []};
+
+    let dump_interval_id;
+
+    client.on('Tracing.dataCollected', message => {
+      data.trace_events = data.traceEvents =
+          data.traceEvents.concat(message.value);
+    });
+
+    client.on('Tracing.tracingComplete', message => {
+      console.log(JSON.stringify(data));
+      if (message.dataLossOcurred)
+        console.error("Some data has been lost");
+      client.close();
+    });
+
+    if (trace_config.dump_memory_mode != '') {
+      dump_interval_id = start_memory_dump(Tracing, trace_config);
+    }
+
+    console.error("Traceconfig is " + JSON.stringify(trace_config));
+    Tracing.start(trace_config.trace_params);
+    process.on('SIGINT', function() {
+      if (dump_interval_id) {
+        clearInterval(dump_interval_id);
+      }
+      if (cli_options.dump_memory_at_stop) {
+        console.error("Dumping memory at stop");
+        dump_memory(Tracing, trace_config);
+      }
+      Tracing.end();
+    });
+  }).on('error', (err) => console.error(err));
+}
+
+if (cli_options.showcategories) {
+  show_categories();
+} else {
+  const trace_config = trace_configuration_from_cli_options(cli_options);
+  capture_trace(trace_config);
+}
