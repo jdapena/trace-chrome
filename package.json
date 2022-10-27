@@ -1,21 +1,21 @@
 {
-    "name": "trace-chrome",
-    "author": "Jose Dapena Paz <jdapena@igalia.com>",
-    "contributors": [],
-    "description": "Chrome tracer using Remote Debugging Protocol",
-    "keywords": [
-        "chrome",
-        "remote",
-        "debug",
-        "interface",
-        "tracing"
-    ],
-    "version": "0.0.1",
-    "dependencies": {
-        "chrome-remote-interface": "^0.31.3",
-        "commander": "^9.4.1"
-    },
-    "bin": {
-        "trace-chrome": "./src/trace-chrome.js"
-    }
+  "name": "trace-chrome",
+  "author": "Jose Dapena Paz <jdapena@igalia.com>",
+  "contributors": [],
+  "description": "Chrome tracer using Remote Debugging Protocol",
+  "keywords": [
+    "chrome",
+    "remote",
+    "debug",
+    "interface",
+    "tracing"
+  ],
+  "version": "0.0.1",
+  "dependencies": {
+    "chrome-remote-interface": "^0.31.3",
+    "commander": "^9.4.1"
+  },
+  "bin": {
+    "trace-chrome": "./src/trace-chrome.js"
+  }
 }
