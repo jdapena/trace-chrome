@@ -12,8 +12,8 @@
     ],
     "version": "0.0.1",
     "dependencies": {
-        "chrome-remote-interface": "^0.28.1",
-        "commander": "2.1.x"
+        "chrome-remote-interface": "^0.31.2",
+        "commander": "^9.3.0"
     },
     "bin": {
         "trace-chrome": "./bin/trace-chrome.js"
