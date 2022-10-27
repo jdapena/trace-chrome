@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 var Chrome = require('chrome-remote-interface');
-var program = require('commander');
+const {program} = require('commander');
 
 program
     .option('-H, --host <host>', 'Remote debugging protocol host', 'localhost')
@@ -16,9 +16,11 @@ program
     .option('--dump_memory_at_stop')
     .parse(process.argv);
 
-var options = {
-  'host' : program.host,
-  'port' : program.port,
+const cli_options = program.opts();
+
+const options = {
+  'host' : cli_options.host,
+  'port' : cli_options.port,
 };
 
 var dump_interval;
@@ -32,7 +34,7 @@ Chrome(options, function(chrome) {
           function() { console.error("Memory dump failed"); });
     }
 
-    if (program.showcategories) {
+    if (cli_options.showcategories) {
       Tracing.getCategories(function(message, result) {
         for (i = 0; i < result["categories"].length; i++) {
           console.log(result["categories"][i]);
@@ -52,35 +54,37 @@ Chrome(options, function(chrome) {
         if (dump_interval) {
           clearInterval(dump_interval);
         }
-        if (program.dump_memory_at_stop) {
+        if (cli_options.dump_memory_at_stop) {
           console.error("Dumping memory at stop");
           dump_memory();
         }
         Tracing.end();
       });
-      console.error("Connecting to: " + program.host + ":" + program.port);
+      console.error("Connecting to: " + cli_options.host + ":" +
+                    cli_options.port);
       traceConfig = {};
-      if (program.categories) {
-        console.error("Categories: " + program.categories);
-        traceConfig["includedCategories"] = program.categories.split(",");
+      if (cli_options.categories) {
+        console.error("Categories: " + cli_options.categories);
+        traceConfig["includedCategories"] = cli_options.categories.split(",");
       }
-      if (program.excludecategories) {
+      if (cli_options.excludecategories) {
         traceConfig["excludedCategories"] =
-            program.excludecategories.split(",");
-        console.error("Excluded categories: " + program.excludecategories);
+            cli_options.excludecategories.split(",");
+        console.error("Excluded categories: " + cli_options.excludecategories);
       }
-      if (program.systrace) {
+      if (cli_options.systrace) {
         traceConfig["enable_systrace"] = true;
       }
-      if (program.memory_dump_mode) {
+      if (cli_options.memory_dump_mode) {
         traceConfig["memory_dump_config"] = {
           "triggers" : [ {
-            "mode" : program.memory_dump_mode,
-            "periodic_interval_ms" : program.memory_dump_interval
+            "mode" : cli_options.memory_dump_mode,
+            "periodic_interval_ms" : cli_options.memory_dump_interval
           } ]
         }
 
-        dump_interval = setInterval(dump_memory, program.memory_dump_interval);
+        dump_interval =
+            setInterval(dump_memory, cli_options.memory_dump_interval);
       }
       console.error("Traceconfig is " + JSON.stringify(traceConfig));
       Tracing.start({"traceConfig" : traceConfig, "streamFormat" : "json"});
