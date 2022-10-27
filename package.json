@@ -16,6 +16,6 @@
         "commander": "^9.3.0"
     },
     "bin": {
-        "trace-chrome": "./bin/trace-chrome.js"
+        "trace-chrome": "./src/trace-chrome.js"
     }
 }

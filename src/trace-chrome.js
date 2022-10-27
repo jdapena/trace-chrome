@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var Chrome = require('chrome-remote-interface');
 var program = require('commander');
 
