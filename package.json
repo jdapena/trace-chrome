@@ -17,5 +17,8 @@
   },
   "bin": {
     "trace-chrome": "./src/trace-chrome.js"
+  },
+  "scripts": {
+    "trace-chrome": "./src/trace-chrome.js"
   }
 }
