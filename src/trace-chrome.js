@@ -2,11 +2,13 @@
 
 const CDP = require('chrome-remote-interface');
 const {program} = require('commander');
+const fs = require('node:fs');
 
 program
     .option('-H, --host <host>', 'Remote debugging protocol host', 'localhost')
     .option('-p, --port <port>', 'Remote debugging protocool port', '9876')
     .option('-s, --showcategories', 'Show categories')
+    .option('-O, --output <path>', 'Output file', "")
     .option('-c, --categories <categories>', 'Set categories', "")
     .option('-e, --excludecategories <categories>', 'Exclude categories', "")
     .option('--systrace', 'Enable systrace')
@@ -38,6 +40,7 @@ function trace_configuration_from_cli_options(opts) {
     dump_memory_mode : opts.memory_dump_mode,
     dump_memory_at_stop : opts.dump_memory_at_stop,
     dump_memory_interval : opts.memory_dump_interval,
+    output_file : opts.output,
     trace_params : {traceConfig : {}, streamFormat : "json"}
   };
 
@@ -95,7 +98,17 @@ async function capture_trace(trace_config) {
     });
 
     client.on('Tracing.tracingComplete', message => {
-      console.log(JSON.stringify(data));
+      const stringified_data = JSON.stringify(data);
+      console.error(trace_config);
+      if (trace_config.output_file != '') {
+        try  {
+          fs.writeFileSync(trace_config.output_file, stringified_data);
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        console.log(stringified_data);
+      }
       if (message.dataLossOcurred)
         console.error("Some data has been lost");
       client.close();
