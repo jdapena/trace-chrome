@@ -16,12 +16,13 @@
     "chrome-remote-interface": "^0.33.2",
     "commander": "^12.1.0"
   },
+  "main": "./lib/trace-chrome",
   "bin": {
     "trace-chrome": "./bin/trace-chrome"
   },
   "scripts": {
     "start": "./bin/trace-chrome",
-    "lint": "eslint"
+    "lint": "eslint bin/trace-chrome lib/*.js"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.1",
