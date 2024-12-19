@@ -2,7 +2,7 @@
 
 'use strict';
 
-const CDP = require('chrome-remote-interface');
+const chromeRemoteInterface = require('chrome-remote-interface');
 const {program} = require('commander');
 const fs = require('node:fs');
 
@@ -22,13 +22,13 @@ program
 
 const cliOptions = program.opts();
 
-const cdpOptions = {
+const criOptions = {
   'host': cliOptions.host,
   'port': cliOptions.port,
 };
 
-function show_categories() {
-  CDP(cdpOptions, (client) => {
+function showCategories() {
+  chromeRemoteInterface(criOptions, (client) => {
     const {Tracing} = client;
     Tracing.getCategories((message, result) => {
       result.categories.forEach((category) => {
@@ -41,7 +41,7 @@ function show_categories() {
   });
 }
 
-function trace_configuration_from_cli_options(opts) {
+function traceConfigFromCliOptions(opts) {
   const result = {
     dump_memory_mode: opts.memory_dump_mode,
     dump_memory_at_stop: opts.dump_memory_at_stop,
@@ -76,9 +76,9 @@ function trace_configuration_from_cli_options(opts) {
   return result;
 }
 
-function dump_memory(tracing, trace_config) {
-  const dump_options = {levelOfDetail: trace_config.dump_memory_mode};
-  tracing.requestMemoryDump(dump_options)
+function dumpMemory(tracing, traceConfig) {
+  const dumpOptions = {levelOfDetail: traceConfig.dump_memory_mode};
+  tracing.requestMemoryDump(dumpOptions)
       .then(
           function(result) {
             console.error(`Memory dump ${result.success ? 'done' : 'failed'}`);
@@ -88,19 +88,19 @@ function dump_memory(tracing, trace_config) {
           });
 }
 
-function start_memory_dump(tracing, trace_config) {
+function startMemoryDump(tracing, traceConfig) {
   return setInterval(function() {
-    dump_memory(tracing, trace_config);
+    dumpMemory(tracing, traceConfig);
   },
-  trace_config.dump_memory_interval);
+  traceConfig.dump_memory_interval);
 }
 
-async function capture_trace(trace_config) {
-  CDP(cdpOptions, (client) => {
+async function captureTrace(traceConfig) {
+  chromeRemoteInterface(criOptions, (client) => {
     const {Tracing} = client;
     const data = {'traceEvents': []};
 
-    let dump_interval_id;
+    let dumpIntervalId;
 
     client.on('Tracing.dataCollected', (message) => {
       data.trace_events = data.traceEvents =
@@ -108,15 +108,15 @@ async function capture_trace(trace_config) {
     });
 
     client.on('Tracing.tracingComplete', (message) => {
-      const stringified_data = JSON.stringify(data);
-      if (trace_config.output_file != '') {
+      const stringifiedData = JSON.stringify(data);
+      if (traceConfig.output_file != '') {
         try {
-          fs.writeFileSync(trace_config.output_file, stringified_data);
+          fs.writeFileSync(traceConfig.output_file, stringifiedData);
         } catch (err) {
           console.error(err);
         }
       } else {
-        console.log(stringified_data);
+        console.log(stringifiedData);
       }
       if (message.dataLossOcurred) {
         console.error('Some data has been lost');
@@ -124,19 +124,19 @@ async function capture_trace(trace_config) {
       client.close();
     });
 
-    if (trace_config.dump_memory_mode != '') {
-      dump_interval_id = start_memory_dump(Tracing, trace_config);
+    if (traceConfig.dump_memory_mode != '') {
+      dumpIntervalId = startMemoryDump(Tracing, traceConfig);
     }
 
-    console.error('Traceconfig is ' + JSON.stringify(trace_config));
-    Tracing.start(trace_config.trace_params);
+    console.error('Traceconfig is ' + JSON.stringify(traceConfig));
+    Tracing.start(traceConfig.trace_params);
     process.on('SIGINT', function() {
-      if (dump_interval_id) {
-        clearInterval(dump_interval_id);
+      if (dumpIntervalId) {
+        clearInterval(dumpIntervalId);
       }
       if (cliOptions.dump_memory_at_stop) {
         console.error('Dumping memory at stop');
-        dump_memory(Tracing, trace_config);
+        dumpMemory(Tracing, traceConfig);
       }
       Tracing.end();
     });
@@ -144,8 +144,8 @@ async function capture_trace(trace_config) {
 }
 
 if (cliOptions.showcategories) {
-  show_categories();
+  showCategories();
 } else {
-  const trace_config = trace_configuration_from_cli_options(cliOptions);
-  capture_trace(trace_config);
+  const traceConfig = traceConfigFromCliOptions(cliOptions);
+  captureTrace(traceConfig);
 }

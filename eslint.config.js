@@ -16,5 +16,8 @@ module.exports = [
             ecmaVersion: 9,
             sourceType: "commonjs",
         },
+        rules: {
+            "require-jsdoc": "off"
+        }
     }
 ];
