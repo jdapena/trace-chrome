@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+'use strict';
+
 const CDP = require('chrome-remote-interface');
 const {program} = require('commander');
 const fs = require('node:fs');
