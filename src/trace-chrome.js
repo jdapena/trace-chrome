@@ -99,7 +99,6 @@ async function capture_trace(trace_config) {
 
     client.on('Tracing.tracingComplete', message => {
       const stringified_data = JSON.stringify(data);
-      console.error(trace_config);
       if (trace_config.output_file != '') {
         try  {
           fs.writeFileSync(trace_config.output_file, stringified_data);
