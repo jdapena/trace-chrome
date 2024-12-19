@@ -5,6 +5,7 @@
   "description": "Chrome tracer using Remote Debugging Protocol",
   "keywords": [
     "chrome",
+    "cli",
     "remote",
     "debug",
     "interface",
@@ -16,10 +17,10 @@
     "commander": "^12.1.0"
   },
   "bin": {
-    "trace-chrome": "./src/trace-chrome.js"
+    "trace-chrome": "./bin/trace-chrome"
   },
   "scripts": {
-    "trace-chrome": "./src/trace-chrome.js",
+    "start": "./bin/trace-chrome",
     "lint": "eslint"
   },
   "devDependencies": {
