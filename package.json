@@ -20,5 +20,10 @@
   },
   "scripts": {
     "trace-chrome": "./src/trace-chrome.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^8.57.1",
+    "eslint": "^8.57.1",
+    "eslint-config-google": "^0.14.0"
   }
 }
