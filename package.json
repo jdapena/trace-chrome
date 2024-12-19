@@ -19,7 +19,8 @@
     "trace-chrome": "./src/trace-chrome.js"
   },
   "scripts": {
-    "trace-chrome": "./src/trace-chrome.js"
+    "trace-chrome": "./src/trace-chrome.js",
+    "lint": "eslint"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.1",
