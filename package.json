@@ -1,5 +1,5 @@
 {
-  "name": "trace-chrome",
+  "name": "@jdapena/trace-chrome",
   "author": "Jose Dapena Paz <jdapena@igalia.com>",
   "contributors": [],
   "description": "Chrome tracer using Remote Debugging Protocol",
