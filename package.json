@@ -11,7 +11,7 @@
     "interface",
     "tracing"
   ],
-  "version": "0.0.1",
+  "version": "0.1.0",
   "dependencies": {
     "chrome-remote-interface": "^0.33.2",
     "commander": "^12.1.0"
