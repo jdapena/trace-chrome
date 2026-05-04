@@ -1,5 +1,7 @@
 # trace-chrome
 
+Status: maintained, MIT licensed. Contributions welcome — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
 `trace-chrome` is a NodeJS script for obtaining a running Chrome browser
 instance trace.
 

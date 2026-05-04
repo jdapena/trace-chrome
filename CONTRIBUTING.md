@@ -1,0 +1,31 @@
+# Contributing
+
+PRs welcome. This is a small public utility — the goal is to keep it small and useful.
+
+## Dev setup
+
+```sh
+npm install
+npm run lint
+```
+
+For end-to-end testing, point the CLI at a Chrome started with `--remote-debugging-port`. See [README.md](README.md) for examples.
+
+## Coding style
+
+ESLint with `eslint-config-google` (see `eslint.config.js`). Please run `npm run lint` and resolve any warnings before submitting. CI runs the same check on every push and PR.
+
+## Scope guardrails
+
+The tool is intentionally minimal: two source files, two runtime dependencies, no tests, no TypeScript, no build step. Please open an issue to discuss before proposing:
+
+- A test framework or test suite.
+- TypeScript, a build pipeline, or transpilation.
+- New runtime dependencies.
+- Major new features beyond the current CDP `Tracing` surface.
+
+Bug fixes, small features that fit the existing shape, and documentation improvements don't need a prior issue — just send the PR.
+
+## AI-assisted contributions
+
+Welcome. See [AGENTS.md](AGENTS.md) for an architectural overview that any AI coding assistant can read. Please review agent-generated code before submitting; the maintainer reads it as your work.
