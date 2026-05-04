@@ -12,8 +12,13 @@
     "tracing"
   ],
   "repository": "github:jdapena/trace-chrome",
+  "bugs": "https://github.com/jdapena/trace-chrome/issues",
+  "homepage": "https://github.com/jdapena/trace-chrome#readme",
   "license": "MIT",
   "version": "0.2.3",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "chrome-remote-interface": "^0.33.2",
     "commander": "^12.1.0"
@@ -22,6 +27,14 @@
   "bin": {
     "trace-chrome": "./bin/trace-chrome"
   },
+  "files": [
+    "bin/",
+    "lib/",
+    "AGENTS.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "start": "./bin/trace-chrome",
     "lint": "eslint bin/trace-chrome lib/*.js"
