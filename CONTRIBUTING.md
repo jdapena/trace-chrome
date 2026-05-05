@@ -26,6 +26,23 @@ The tool is intentionally minimal: two source files, two runtime dependencies, n
 
 Bug fixes, small features that fit the existing shape, and documentation improvements don't need a prior issue — just send the PR.
 
+## Releasing
+
+trace-chrome is published to npm as `@jdapena/trace-chrome`. To cut a release:
+
+```sh
+npm run release
+```
+
+The script will check the working tree is clean, run lint, confirm `npm whoami`, prompt for a new version (`X.Y.Z`), then commit, tag (`vX.Y.Z`), `git push --follow-tags`, `npm publish`, and verify against the registry.
+
+To roll back a half-done release before the push step:
+
+```sh
+git tag -d vX.Y.Z
+git reset --hard HEAD~1
+```
+
 ## AI-assisted contributions
 
 Welcome. See [AGENTS.md](AGENTS.md) for an architectural overview that any AI coding assistant can read. Please review agent-generated code before submitting; the maintainer reads it as your work.

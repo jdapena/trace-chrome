@@ -35,9 +35,14 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "./bin/trace-chrome",
-    "lint": "eslint bin/trace-chrome lib/*.js"
+    "lint": "eslint bin/trace-chrome lib/*.js",
+    "prepublishOnly": "npm run lint",
+    "release": "./scripts/release.sh"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.1",
