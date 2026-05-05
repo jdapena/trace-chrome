@@ -36,6 +36,29 @@ Check parameters allowed with
 
 	nodejs bin/trace-chrome.js --help
 
+## Web UI
+
+Instead of driving capture from the command line, you can run a small local
+web UI to configure and control tracing from the browser:
+
+	nodejs bin/trace-chrome.js -p 9222 --ui
+
+The UI listens on `http://127.0.0.1:9223/` by default. Pass `--ui 8080` to
+choose a different port, or `--ui-host 0.0.0.0` to bind on all interfaces
+(this exposes start/stop control to the network — only use it on trusted
+networks).
+
+The page lets you set the Chrome remote-debug host and port (prefilled from
+`-H`/`-p` if you passed them), pick categories (with a few presets matching
+Chromium's `about://tracing`, plus a "Show available" button that lists
+categories from the connected Chrome in two columns), set memory-dump
+options, then **Start** and either **Stop & Download** or **Stop, Download
+& Open in Perfetto**. The latter saves the trace locally and pushes it
+into [ui.perfetto.dev](https://ui.perfetto.dev/) via its `postMessage`
+handshake.
+
+Only one trace can be running at a time. Press Ctrl+C to stop the server.
+
 # Examples
 
 ## Trace chromium on desktop

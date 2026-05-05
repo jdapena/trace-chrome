@@ -17,50 +17,20 @@ program
     .option('--memory_dump_interval <interval_in_ms>',
         'Memory dump interval in ms', 2000)
     .option('--dump_memory_at_stop')
+    .option('--ui [port]', 'Start the web UI on the given port (default 9223)')
+    .option('--ui-host <host>', 'Bind address for the web UI', '127.0.0.1')
     .parse(process.argv);
 
 const cliOptions = program.opts();
-
-function traceConfigFromCliOptions(opts) {
-  const result = {
-    dump_memory_mode: opts.memory_dump_mode,
-    dump_memory_at_stop: opts.dump_memory_at_stop,
-    dump_memory_interval: opts.memory_dump_interval,
-    output_file: opts.output,
-    trace_params: {traceConfig: {}, streamFormat: 'json'},
-  };
-
-  if (opts.categories) {
-    console.error('Categories: ' + opts.categories);
-    result.trace_params.traceConfig['includedCategories'] =
-      opts.categories.split(',');
-  }
-  if (opts.excludecategories) {
-    console.error('Excluded categories: ' + opts.excludecategories);
-    result.trace_params.traceConfig['excludedCategories'] =
-      opts.excludecategories.split(',');
-  }
-  if (opts.systrace) {
-    console.error('Systrace enabled');
-    result.trace_params.traceConfig['enableSystrace'] = true;
-  }
-  if (opts.memory_dump_mode) {
-    console.error('Memory dump enabled. Mode ' + opts.memory_dump_mode +
-      '. Interval ' + opts.memory_dump_interval + 'ms');
-    if (!result.trace_params.traceConfig['includedCategories']) {
-      result.trace_params.traceConfig['includedCategories'] = ['*'];
-    }
-    result.trace_params.traceConfig['includedCategories'].push(
-        'disabled-by-default-memory-infra');
-  }
-  return result;
-}
 
 traceChrome.setCriOptions(cliOptions.host, cliOptions.port);
 
 if (cliOptions.showcategories) {
   traceChrome.showCategories();
+} else if (cliOptions.ui !== undefined) {
+  const port = Number(cliOptions.ui === true ? 9223 : cliOptions.ui) || 9223;
+  require('../lib/web-ui').startWebUi({host: cliOptions.uiHost, port});
 } else {
-  const traceConfig = traceConfigFromCliOptions(cliOptions);
+  const traceConfig = traceChrome.buildTraceConfig(cliOptions);
   traceChrome.captureTrace(traceConfig);
 }

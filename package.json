@@ -15,7 +15,7 @@
   "bugs": "https://github.com/jdapena/trace-chrome/issues",
   "homepage": "https://github.com/jdapena/trace-chrome#readme",
   "license": "MIT",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "engines": {
     "node": ">=18"
   },
